@@ -1,13 +1,22 @@
+import java.sql.*;
+import java.util.*;
 
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 public class Main {
 
+    private  static final String GET_CATEGORIES = "select category FROM categories";
+    private  static final String GET_CATEGORY_ID = "select category_id FROM categories WHERE category=?";
+
+    private  static final String GET_WORDS = "select word_id,word from categories JOIN words" +
+            "            ON words.category_id=categories.category_id" +
+            "            WHERE categories.category_id = 7;";
+    private static final String GET_HINT = "select hint from words where word_id=1";
+
+
+
     public static void main(String[] args) {
 
+        // exampleofdata
         String[][] entryArray = new String[3][3];
         entryArray[0][0] = "Ludzie";
         entryArray[1][0] = "Sport";
@@ -28,21 +37,42 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Wybierz sposrod kategorii :");
 
-        for (int i = 0; i < entryArray.length; i++) {
-            System.out.println(i+1 + "." + entryArray[i][0]);
+//        for (int i = 0; i < entryArray.length; i++) {
+//            System.out.println(i+1 + "." + entryArray[i][0]);
+//        }
+
+        //Get available categories from database
+
+        try(final Connection connection = DBUtil.connect()) {
+            List<String> categories = DBUtil.DataArray(connection,GET_CATEGORIES,"category");
+
+            for (int i = 0; i < categories.size(); i++) {
+                            System.out.println(i+1 + "." + categories.get(i));
+            }
+
+            int numberOfCategory = scanner.nextInt();
+            String nameOfCategory = categories.get(numberOfCategory-1);
+
+            // get category_id from database
+           int categoryId = Integer.parseInt(DBUtil.indexOfCategory(connection,GET_CATEGORY_ID,nameOfCategory,"category_id"));
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
+
         int index = scanner.nextInt();
-        if(index <1){
-            System.out.println("NIeprawidłowy indeks");
-        }else if(index> entryArray.length){
-            System.out.println("Nieprawidłowy indeks. Podaj liczbę z przedziału 1-"+entryArray.length);
-        };
+
+        if(index <1 || index > entryArray.length){
+            System.out.println("Nieprawidłowy indeks Podaj liczbę z przedziału 1-"+entryArray.length);
+        }
 
         // entry - chosen word
         String entry = entryArray[index-1][1];
         //split word into table
-        String[] entryTab = entry.split("");
+        String[] entryTab = entry.replaceAll("\\s+","").split("");
+
         //table of chars "_"
         String[] outTab = new String[entryTab.length];
         for (int i = 0; i < outTab.length; i++) {
@@ -52,7 +82,7 @@ public class Main {
 
         //Introduction to game
 
-        System.out.println(entryArray[index-1][2]+ ". Wyraz " + entry.length() + "-znakowy" );
+        System.out.println(entryArray[index-1][2]+ ". Hasło " + entryTab.length + "-znakowe" );
 
         printWordAsArray(outTab);
 
@@ -62,9 +92,14 @@ public class Main {
         while(chances>0&&checkIfFully(outTab)) {
             letter = scanner.next();
 
-            if(checkIfContainInd(letter,entryTab)!=-1){
+            // list to collect all indices where letter occurs
+            List <Integer> indices = checkIfContainInd(letter,entryTab);
+
+            if(indices.size()>0){
                 //Replace "_" with letter if ok
-                outTab[checkIfContainInd(letter,entryTab)] = letter;
+                for (int i = 0; i < indices.size(); i++) {
+                    outTab[indices.get(i)] = letter;
+                }
                 printWordAsArray(outTab);
 
             }else{
@@ -78,21 +113,24 @@ public class Main {
                 System.out.println("It was bad idea. Try again! "+ chances + " chance/s left");
             }
 
+            scanner.close();
+
         }
     }
 
 
     // Function to check if word contains letter given by user and return index of letter
 
-    public static int checkIfContainInd(String letter, String[] entryTab){
+    public static List<Integer> checkIfContainInd(String letter, String[] entryTab){
 
-        int index = -1;
+        List <Integer> indices = new ArrayList<>();
+
         for (int i = 0; i < entryTab.length; i++) {
             if (entryTab[i].equalsIgnoreCase(letter)) {
-                index = i;
+               indices.add(i);
             }
         }
-        return index;
+        return indices;
     }
 
     // Function to check if word is fully guessed
