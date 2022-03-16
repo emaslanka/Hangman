@@ -13,9 +13,57 @@ public class Main {
 
 
 
+
     public static void main(String[] args) {
 
-        int chances = 5;
+        String h1 = "=======";
+        String h2 =
+
+                "      |\n" +
+                        "      |\n" +
+                        "      |\n" +
+                        "=======";
+
+        String h3 =
+                " +----+\n" +
+                        "      |\n" +
+                        "      |\n" +
+                        "      |\n" +
+                        "=======";
+
+
+        String h4 =
+                " +----+\n" +
+                        " O    |\n" +
+                        "      |\n" +
+                        "      |\n" +
+                        "=======";
+
+        String h5 =
+                " +----+\n" +
+                        " O    |\n" +
+                        " |    |\n" +
+                        "      |\n" +
+                        "=======";
+        String h6 =
+                " +----+\n" +
+                        " O    |\n" +
+                        "\\|/   |\n" +
+                        "      |\n" +
+                        "=======";
+
+        String h7 =
+                " +----+\n" +
+                        " O    |\n" +
+                        "\\|/   |\n" +
+                        "/ \\   |\n" +
+                        "=======";
+
+        String[] hangmans = {h7,h6,h5,h4,h3,h2,h1};
+
+
+
+        int chances = 7;
         int idxOfWord;
         List<String> wordsList = new ArrayList<>();
         List<String> usedWrongLetter = new ArrayList<>();
@@ -92,10 +140,19 @@ public class Main {
                 {usedWrongLetter.add(letter);}
 
                 chances --;
-                System.out.println("It was bad idea. Try again! "+ chances + " chance/s left");
-            }
+                if(chances==0){
+                    System.out.println(hangmans[chances]);
+                    System.out.println("GAME OVER");
+                } else{
+                    System.out.println(hangmans[chances]);
+                    System.out.println("It was bad idea. Try again! "+ chances + " chance/s left");
+                }
+                }
+
+
 
         }
+        scanner.close();
     }
 
 

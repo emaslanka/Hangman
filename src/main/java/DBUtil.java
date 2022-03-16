@@ -34,11 +34,8 @@ public class DBUtil {
              ResultSet resultSet = statement.executeQuery();) {
 
             while (resultSet.next()) {
-                for (String param : columnNames) {
                     CategoryList.add(resultSet.getString(1));
-                }
 
-            //CategoryList.add(resultSet.getString(1));
             }
         } catch (Exception e) {
             e.printStackTrace();
