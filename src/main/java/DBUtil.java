@@ -17,7 +17,7 @@ public class DBUtil {
     // method to display table
     public static void printData(Connection conn, String query, String... columnNames) throws SQLException {
         try (PreparedStatement statement = conn.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery();) {
+             ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 for (String param : columnNames) {
                     System.out.println(resultSet.getString(param));
@@ -46,19 +46,32 @@ public class DBUtil {
         return CategoryList;
     }
 
-    public static String indexOfCategory(Connection conn, String query, String name, String... columnNames) throws SQLException {
-        String index = null;
-        try (PreparedStatement statement = conn.prepareStatement(query);
-             //statement.setString(1,name);
-             ResultSet resultSet = statement.executeQuery();) {
-
+    public static List<String> getWords(Connection conn, String query, String name, String... columnNames) throws SQLException {
+        List<String> wordsFromCat = new ArrayList<>();
+        try (PreparedStatement statement = conn.prepareStatement(query)){
+             statement.setString(1,name);
+             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                index=resultSet.getString(1);
+                wordsFromCat.add(resultSet.getString(1));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return index;
+        return wordsFromCat;
+    };
+
+    public static String getHint(Connection conn, String query, String name, String... columnNames) throws SQLException {
+        String hint = null;
+        try (PreparedStatement statement = conn.prepareStatement(query)){
+            statement.setString(1,name);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                hint = resultSet.getString(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hint;
     };
 
 }
